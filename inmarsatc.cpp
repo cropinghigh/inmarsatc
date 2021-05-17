@@ -332,13 +332,13 @@ namespace inmarsatc {
                 phase = phase + omega + alpha * error;
                 // carrier
                 omega = omega + beta * error;
-                // keep frequency in range
+                // keep frequency in range(round)
                 if(freq < loFreq) {
-                    freq = loFreq;
+                    freq = hiFreq;
                     omega = 2.0 * M_PI * freq / DEMODULATOR_SAMPLERATE;
                 }
                 if(freq > hiFreq) {
-                    freq = hiFreq;
+                    freq = loFreq;
                     omega = 2.0 * M_PI * freq / DEMODULATOR_SAMPLERATE;
                 }
                 freq_mtx.unlock();
@@ -397,7 +397,7 @@ namespace inmarsatc {
                 }
                 lastScatterPoint = scatterPoint;
                 //Determine value sign
-                uint8_t iBit = (((scatterPoint.real() > 0.0) - (scatterPoint.real() < 0.0)) + 1.0) / 2.0;
+                uint8_t iBit = (((scatterPoint.real() > 0.0) - (scatterPoint.real() < 0.0)) + 1) / 2;
                 //rotate right
                 std::copy(symbolBuffer, &symbolBuffer[DEMODULATOR_SYMBOLSPERCHUNK], &symbolBuffer[1]);
                 symbolBuffer[0] = iBit;
@@ -512,7 +512,7 @@ namespace inmarsatc {
                                 i_ = 2 * UWFINDER_FRAME_LENGTH - 81 * nUW_;
                             }
                             for (; i_ > UWFINDER_FRAME_LENGTH; i_--) {
-                                symbolRegister[i_] = symbolRegister[i_] ^ 0;
+                                symbolRegister[i_] = symbolRegister[i_] ^ 1;
                             }
                             // now we reassess the result
                             if(IsFrameDetected(false, &nUW_, &rUW_, &isReversedPolarity_, &isMidStreamReversePolarity_, &isReversedFirst_)) {
@@ -524,7 +524,7 @@ namespace inmarsatc {
                                 //this will neede rewriting when the demodulator will output soft symbols.
                                 if(isReversedPolarity_) {
                                     for(int i = 0; i < UWFINDER_FRAME_LENGTH; i++) {
-                                        res.uwFrame[i] = res.uwFrame[i] ^ 0;
+                                        res.uwFrame[i] = res.uwFrame[i] ^ 1;
                                     }
                                 }
                                 res.symbolCount = UWFINDER_FRAME_LENGTH;
@@ -545,7 +545,7 @@ namespace inmarsatc {
                         //this will neede rewriting when the demodulator will output soft symbols.
                         if(isReversedPolarity) {
                             for(int i = 0; i < UWFINDER_FRAME_LENGTH; i++) {
-                                res.uwFrame[i] = res.uwFrame[i] ^ 0;
+                                res.uwFrame[i] = res.uwFrame[i] ^ 1;
                             }
                         }
                         res.symbolCount = symbolCount;
