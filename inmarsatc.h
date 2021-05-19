@@ -23,6 +23,9 @@
 #include <algorithm>
 #include <math.h>
 #include <mutex>
+#include <map>
+#include <iomanip>
+#include <chrono>
 
 namespace inmarsatc {
     namespace demodulator {
@@ -495,8 +498,7 @@ namespace inmarsatc {
                     int length;
                     uint8_t descramblerFrame[DESCRAMBLER_FRAME_LENGTH];
                     int frameNumber;
-                    bool isBadBulletinBoard;
-                    unsigned long timestamp;
+                    std::chrono::time_point<std::chrono::high_resolution_clock> timestamp;
                 };
                 Descrambler();
                 descrambler_result decode(uint8_t viterbiFrame[VITERBIDECODER_FRAME_LENGTH]);
@@ -511,14 +513,122 @@ namespace inmarsatc {
 
         class INMARSATC_EXPORT Decoder {
             public:
+                struct decoder_result {
+                    uint8_t decodedFrame[DESCRAMBLER_FRAME_LENGTH];
+                    int length;
+                    int frameNumber;
+                    std::chrono::time_point<std::chrono::high_resolution_clock> timestamp;
+                    bool isHardDecision;
+                    bool isReversedPolarity;
+                    bool isMidStreamReversePolarity;
+                    bool isUncertain;
+                    int BER;
+                };
                 Decoder(int tolerance);
-                std::vector<Descrambler::descrambler_result> decode(uint8_t inputBits[DEMODULATOR_SYMBOLSPERCHUNK]);
+                std::vector<decoder_result> decode(uint8_t inputBits[DEMODULATOR_SYMBOLSPERCHUNK]);
             private:
                 UWFinder* uwFinder;
                 Depermuter* depermuter;
                 Deinterleaver* deinterleaver;
                 ViterbiDecoder* viterbiDecoder;
                 Descrambler* descrambler;
+        };
+    }
+
+    namespace frameParser {
+        class PacketDecoder {
+            public:
+                struct packetDecoder_multiFramePacket {
+                    bool isMFP = false;
+                    int multiFramePacketDescriptor;
+                    bool isReady;
+                    std::vector<uint8_t> packetData;
+                    int firstPartCount;
+                };
+                #define PACKETDECODER_PRESENTATION_IA5 0
+                #define PACKETDECODER_PRESENTATION_ITA2 6
+                #define PACKETDECODER_PRESENTATION_BINARY 7
+                struct packetDecoder_payload {
+                    int presentation = -1;
+                    std::vector<uint8_t> data8Bit;
+                };
+                #define PACKETDECODER_DECODING_STAGE_NONE 0
+                #define PACKETDECODER_DECODING_STAGE_PARTIAL 1
+                #define PACKETDECODER_DECODING_STAGE_COMPLETE 2
+                struct packetDecoder_result {
+                    bool isDecodedPacket;
+                    int frameNumber;
+                    std::chrono::time_point<std::chrono::high_resolution_clock> timestamp;
+                    uint8_t packetDescriptor;
+                    int packetLength;
+                    int decodingStage;
+                    bool isCrc;
+                    packetDecoder_payload payload;
+                    std::map<std::string, std::string> packetVars;
+                    packetDecoder_multiFramePacket mfp;
+                };
+                packetDecoder_result basicDecode(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_27(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_2A(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_08(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_6C(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_7D(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_81(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_83(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_91(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_92(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_9A(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_A0(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_A3(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_A8(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_AA(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_AB(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_AC(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_AD(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_B1(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_B2(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_BD(decoder::Decoder::decoder_result inputFrame, int* pos);
+                packetDecoder_result decode_BE(decoder::Decoder::decoder_result inputFrame, int* pos, packetDecoder_multiFramePacket* mfa);
+            private:
+                // 2-byte CRC for Inmarsat-C calculator.
+                // Arithmetic is modulo 256.
+                // Perform encoding on data + zeros in checksum field.
+                // Perform checker on all data bytes including checksum.
+                // CB2 forms last byte of the packet.
+                //
+                // How to implement this as a lookup?
+                static int computeCRC(uint8_t decodedFrame[DESCRAMBLER_FRAME_LENGTH], int pos, int length);
+                static std::string getSatName(int sat);
+                static std::string getLesName(int sat, int lesId);
+                static std::string getServiceCodeAndAddressName(int code);
+                static std::string getPriority(int priority);
+                static int getAddressLength(int messageType);
+                static bool IsBinary(std::vector<uint8_t> data, bool checkAll = false);
+                static std::string getStations(uint8_t data[], int stationCount, int pos);
+                static std::string getServices_short(uint8_t is8);
+                static std::string getServices(int iss);
+                static std::string getDescriptorAsText(uint8_t descriptor_b);
+        };
+
+        class PacketDetector {
+            public:
+                PacketDetector();
+                std::vector<PacketDecoder::packetDecoder_result> process(decoder::Decoder::decoder_result inputFrame);
+                PacketDecoder::packetDecoder_result detect(decoder::Decoder::decoder_result inputFrame, int* pos);
+            private:
+                PacketDecoder::packetDecoder_multiFramePacket multiStreamFrameElements;
+                PacketDecoder* packetDecoder;
+        };
+
+        class INMARSATC_EXPORT FrameParser {
+            public:
+                struct frameParser_result {
+                    PacketDecoder::packetDecoder_result decoding_result;
+                };
+                FrameParser();
+                std::vector<frameParser_result> parseFrame(decoder::Decoder::decoder_result inputFrame);
+            private:
+                PacketDetector* packetDetector;
         };
     }
 }
