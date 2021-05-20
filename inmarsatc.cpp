@@ -292,7 +292,8 @@ namespace inmarsatc {
         }
         void Demodulator::setCenterFreq(double centerFreq) {
             freq_mtx.try_lock();
-            this->freq = centerFreq;
+            //this->freq = centerFreq;
+            this->omega = (centerFreq * (2.0 * M_PI)) / DEMODULATOR_SAMPLERATE;
             freq_mtx.unlock();
         }
         void Demodulator::cmaReset() {
