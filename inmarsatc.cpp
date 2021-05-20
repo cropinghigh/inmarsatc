@@ -1747,7 +1747,6 @@ namespace inmarsatc {
                     char chr = (char)(data[i] & 0x7F);
                     switch (chr) {
                         case 0x01:
-                        case 0x03:
                         case 0x05:
                         case 0x06:
                         case 0x07:

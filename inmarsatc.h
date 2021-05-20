@@ -1,4 +1,5 @@
-//DSP AND PACKET DECODER CODE TAKEN FROM SCYTALE-C, WHICH IS THE OPEN-SOURCE INMARSAT-C DECODER WRITTEN ON C#. I JUST PORTED IT TO C++(with some optimizations).
+//ALMOST ALL CODE WAS TAKEN FROM SCYTALE-C, WHICH IS THE OPEN-SOURCE INMARSAT-C DECODER WRITTEN ON C#. I JUST PORTED IT TO C++(with some optimizations).
+//if i understand correctly, Scytale-C based on Tekmanoid's java app source code, so thanks him for it!
 //Code license: GNU GPL
 
 #ifndef INMARSATC_H
