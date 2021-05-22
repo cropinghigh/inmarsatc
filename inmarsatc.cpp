@@ -971,7 +971,7 @@ namespace inmarsatc {
             int logicalChannelNo = inputFrame.decodedFrame[*pos + 5];
             std::ostringstream os;
             for(int i = 0; i < 3; i++) {
-                os << std::setfill('0') << std::setw(2) << std::right << std::hex << inputFrame.decodedFrame[*pos + 6 + i];
+                os << std::setfill('0') << std::setw(2) << std::right << std::hex << (uint16_t)inputFrame.decodedFrame[*pos + 6 + i];
             }
             std::string unknown1Hex = os.str();
             ret.packetVars.insert(std::pair<std::string, std::string>("mesId", std::to_string(mesId)));
@@ -994,7 +994,7 @@ namespace inmarsatc {
             int lesId = inputFrame.decodedFrame[*pos + 1] & 0x3F;
             std::string lesName = getLesName(sat, lesId);
             int logicalChannelNo = inputFrame.decodedFrame[*pos + 2];
-            double uplinkChannelMhz = ((inputFrame.decodedFrame[*pos + 3] << 8 | inputFrame.decodedFrame[*pos + 3 + 1]) - 6000) * 0.0025 + 1626.5;
+            double uplinkChannelMhz = ((inputFrame.decodedFrame[*pos + 3] << 8 | (uint16_t)inputFrame.decodedFrame[*pos + 3 + 1]) - 6000) * 0.0025 + 1626.5;
             ret.packetVars.insert(std::pair<std::string, std::string>("sat", std::to_string(sat)));
             ret.packetVars.insert(std::pair<std::string, std::string>("satName", satName));
             ret.packetVars.insert(std::pair<std::string, std::string>("lesId", std::to_string(lesId)));
@@ -1013,7 +1013,7 @@ namespace inmarsatc {
             //Identical to the first byte of the services bytes of the 7D packet.
             int is8 = inputFrame.decodedFrame[*pos + 1];
             std::string services = getServices_short(is8);
-            double uplinkChannelMhz = ((inputFrame.decodedFrame[*pos + 2] << 8 | inputFrame.decodedFrame[*pos + 2 + 1]) - 6000) * 0.0025 + 1626.5;
+            double uplinkChannelMhz = ((inputFrame.decodedFrame[*pos + 2] << 8 | (uint16_t)inputFrame.decodedFrame[*pos + 2 + 1]) - 6000) * 0.0025 + 1626.5;
             int tdmslots_int[28];
             int j = 0;
             for (int i = 0; i < 28; i += 4) {
@@ -1109,17 +1109,17 @@ namespace inmarsatc {
             int presentation = inputFrame.decodedFrame[*pos + 14];
             std::ostringstream os;
             for(int i = 0; i < 1; i++) {
-                os << std::setfill('0') << std::setw(2) << std::right << std::hex << inputFrame.decodedFrame[*pos + 8 + i];
+                os << std::setfill('0') << std::setw(2) << std::right << std::hex << (uint16_t)inputFrame.decodedFrame[*pos + 8 + i];
             }
             std::string unknown1Hex = os.str();
             os.clear();
             for(int i = 0; i < 4; i++) {
-                os << std::setfill('0') << std::setw(2) << std::right << std::hex << inputFrame.decodedFrame[*pos + 10 + i];
+                os << std::setfill('0') << std::setw(2) << std::right << std::hex << (uint16_t)inputFrame.decodedFrame[*pos + 10 + i];
             }
             std::string unknown2Hex = os.str();
             os.clear();
             for(int i = 0; i < 2; i++) {
-                os << std::setfill('0') << std::setw(2) << std::right << std::hex << inputFrame.decodedFrame[*pos + 15 + i];
+                os << std::setfill('0') << std::setw(2) << std::right << std::hex << (uint16_t)inputFrame.decodedFrame[*pos + 15 + i];
             }
             std::string unknown3Hex = os.str();
             ret.packetVars.insert(std::pair<std::string, std::string>("mesId", std::to_string(mesId)));
@@ -1185,13 +1185,13 @@ namespace inmarsatc {
             int loginAckLength = inputFrame.decodedFrame[*pos + 1];
             std::ostringstream os;
             for(int i = 0; i < 3; i++) {
-                os << std::setfill('0') << std::setw(2) << std::right << std::hex << inputFrame.decodedFrame[*pos + 2 + i];
+                os << std::setfill('0') << std::setw(2) << std::right << std::hex << (uint16_t)inputFrame.decodedFrame[*pos + 2 + i];
             }
             std::string les = os.str();
             double downlinkChannelMhz = ((inputFrame.decodedFrame[*pos + 5] << 8 | inputFrame.decodedFrame[*pos + 5 + 1]) - 8000) * 0.0025 + 1530.5;
             os.clear();
             for(int i = 0; i < 1; i++) {
-                os << std::setfill('0') << std::setw(2) << std::right << std::hex << inputFrame.decodedFrame[*pos + 7 + i];
+                os << std::setfill('0') << std::setw(2) << std::right << std::hex << (uint16_t)inputFrame.decodedFrame[*pos + 7 + i];
             }
             std::string stationStartHex = os.str();
             ret.packetVars.insert(std::pair<std::string, std::string>("loginAckLength", std::to_string(loginAckLength)));
@@ -1246,7 +1246,7 @@ namespace inmarsatc {
                 }
             } else {
                 for(int i = 0; i < ret.packetLength - 6; i++) {
-                    os << std::setfill('0') << std::setw(2) << std::right << std::hex << inputFrame.decodedFrame[*pos + 6 + i];
+                    os << std::setfill('0') << std::setw(2) << std::right << std::hex << (uint16_t)inputFrame.decodedFrame[*pos + 6 + i];
                 }
             }
             std::string unknown1Hex = os.str();
@@ -1271,13 +1271,13 @@ namespace inmarsatc {
             std::string lesName = getLesName(sat, lesId);
             std::ostringstream os;
             for(int i = 0; i < 3; i++) {
-                os << std::setfill('0') << std::setw(2) << std::right << std::hex << inputFrame.decodedFrame[*pos + 6 + i];
+                os << std::setfill('0') << std::setw(2) << std::right << std::hex << (uint16_t)inputFrame.decodedFrame[*pos + 6 + i];
             }
             std::string unknown1Hex = os.str();
             int shortMessageLength = inputFrame.decodedFrame[*pos + 9];
             os.clear();
             for(int i = 0; i < 1; i++) {
-                os << std::setfill('0') << std::setw(2) << std::right << std::hex << inputFrame.decodedFrame[*pos + 10 + i];
+                os << std::setfill('0') << std::setw(2) << std::right << std::hex << (uint16_t)inputFrame.decodedFrame[*pos + 10 + i];
             }
             std::string unknown2Hex = os.str();
             if(shortMessageLength > 2) {
@@ -1336,7 +1336,7 @@ namespace inmarsatc {
             int lesListLength = inputFrame.decodedFrame[*pos + 1];
             std::ostringstream os;
             for(int i = 0; i < 1; i++) {
-                os << std::setfill('0') << std::setw(2) << std::right << std::hex << inputFrame.decodedFrame[*pos + 2 + i];
+                os << std::setfill('0') << std::setw(2) << std::right << std::hex << (uint16_t)inputFrame.decodedFrame[*pos + 2 + i];
             }
             std::string stationStartHex = os.str();
             int stationCount = inputFrame.decodedFrame[*pos + 3];
@@ -1445,7 +1445,7 @@ namespace inmarsatc {
             std::copy(&inputFrame.decodedFrame[*pos+8], &inputFrame.decodedFrame[*pos+8+addressLength], address);
             std::ostringstream os;
             for(int i = 0; i < addressLength - 1; i++) {
-                os << std::setfill('0') << std::setw(2) << std::right << std::hex << address[i + 1];
+                os << std::setfill('0') << std::setw(2) << std::right << std::hex << (uint16_t)address[i + 1];
             }
             std::string addressHex = os.str();
             int payloadLength = ret.packetLength - 2 - 8 - addressLength;
