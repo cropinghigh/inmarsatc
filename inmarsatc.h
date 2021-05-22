@@ -129,7 +129,7 @@ namespace inmarsatc {
                 #define DEMODULATOR_SAMPLERATE 48000.0
                 // As the carrier gets locked, the positive and the negative error are equally distributed and
                 // their sum gets closer and closer to zero. This is the absolute number I came up with.
-                #define DEMODULATOR_MAXABSERRSUM 12
+                #define DEMODULATOR_MAXABSERRSUM 1.0
                 #define DEMODULATOR_ALPHA 0.0065
                 // this implementation of a Costas loop tracks easier to the left, so we set the
                 // center frequency on purpuse a bit higher that where we expect to find the sync

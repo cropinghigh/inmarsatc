@@ -317,7 +317,7 @@ namespace inmarsatc {
             }
             meanMagnitude = magnitude / length;
             if(meanMagnitude == 0) {
-                meanMagnitude = 1;
+                meanMagnitude = 1; //avoid zero division
             }
             for(int i = 0; i < length; i++) {
                 samples[i] = samples[i] / meanMagnitude;
@@ -330,9 +330,9 @@ namespace inmarsatc {
                 // Use both sin and cos from the VCO and create the voltage by combining them
                 freq = (omega * DEMODULATOR_SAMPLERATE) / (2.0 * M_PI);
                 // phase
-                phase = phase + omega + alpha * error;
+                phase += omega + alpha * error;
                 // carrier
-                omega = omega + beta * error;
+                omega += beta * error;
                 // keep frequency in range(round)
                 if(freq < loFreq) {
                     freq = hiFreq;
@@ -348,8 +348,8 @@ namespace inmarsatc {
                     phase -= 2.0 * M_PI;
                 }
                 // VCO
-                vI = cos(phase);
-                vQ = -sin(phase);
+                vI = cos(-phase);
+                vQ = sin(-phase);
                 // mixer
                 I = vI * samples[i].real();
                 Q = vQ * samples[i].imag();
@@ -357,7 +357,8 @@ namespace inmarsatc {
                 I = lpf1->filter(I);
                 Q = lpf2->filter(Q);
                 // VCO error
-                error = I * Q;
+                //error = I * Q;
+                error = tanh(I * Q);
                 // loop filter
                 error = lpf3->filter(error);
                 // Summing up all errors in this args sample set
