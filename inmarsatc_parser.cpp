@@ -499,7 +499,7 @@ namespace inmarsatc {
             std::copy(&inputFrame.decodedFrame[*pos+8], &inputFrame.decodedFrame[*pos+8+addressLength], address);
             std::ostringstream os;
             for(int i = 0; i < addressLength - 1; i++) {
-                os << std::setfill('0') << std::setw(2) << std::right << std::hex << address[i + 1];
+                os << std::setfill('0') << std::setw(2) << std::right << std::hex << (uint16_t)address[i + 1];
             }
             std::string addressHex = os.str();
             int payloadLength = ret.packetLength - 2 - 8 - addressLength;
