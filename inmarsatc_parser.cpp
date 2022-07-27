@@ -302,7 +302,7 @@ namespace inmarsatc {
             ret.packetVars.insert(std::pair<std::string, std::string>("stationStartHex", stationStartHex));
             if(loginAckLength > 7) {
                 //stations
-                int stationCount = inputFrame.decodedFrame[8];
+                int stationCount = inputFrame.decodedFrame[*pos + 8];
                 std::string stations = getStations(inputFrame.decodedFrame, stationCount, *pos + 9);
                 ret.packetVars.insert(std::pair<std::string, std::string>("stationCount", std::to_string(stationCount)));
                 ret.packetVars.insert(std::pair<std::string, std::string>("stations", stations));
@@ -414,7 +414,6 @@ namespace inmarsatc {
             int packetNo = inputFrame.decodedFrame[*pos + 4];
             //in bytes, presentation agnostic
             int j = *pos + 5;
-            ret.payload.presentation = 0;
             for(int i = 0; j < *pos + ret.packetLength - 2; i++) {
                 char c = inputFrame.decodedFrame[j];
                 ret.payload.data8Bit.push_back(c);
@@ -847,42 +846,36 @@ namespace inmarsatc {
                 check = data.size();
             }
             for (int i = 0; i < check; i++) {
-                if (!isBinary) {
-                    char chr = (char)(data[i] & 0x7F);
-                    switch (chr) {
-                        case 0x01:
-                        case 0x05:
-                        case 0x06:
-                        case 0x07:
-                        case 0x08:
-                        case 0x0B:
-                        case 0x0C:
-                        case 0x0E:
-                        case 0x0F:
-                        case 0x10:
-                        case 0x11:
-                        case 0x12:
-                        case 0x13:
-                        case 0x14:
-                        case 0x15:
-                        case 0x16:
-                        case 0x17:
-                        case 0x18:
-                        case 0x19:
-                        case 0x1A:
-                        case 0x1C:
-                        case 0x1D:
-                        case 0x1E:
-                        case 0x1F:
-                        //case 0xA4:
-                        case '$':
-                            isBinary = true;
-                            break;
-                    }
-                    if (isBinary)
-                    {
+                char chr = (char)(data[i] & 0x7F);
+                switch (chr) {
+                    case 0x01:
+                    case 0x05:
+                    case 0x06:
+                    case 0x07:
+                    case 0x08:
+                    case 0x0B:
+                    case 0x0C:
+                    case 0x0E:
+                    case 0x0F:
+                    case 0x10:
+                    case 0x11:
+                    case 0x12:
+                    case 0x13:
+                    case 0x14:
+                    case 0x15:
+                    case 0x16:
+                    case 0x17:
+                    case 0x18:
+                    case 0x19:
+                    case 0x1A:
+                    case 0x1C:
+                    case 0x1D:
+                    case 0x1E:
+                    case 0x1F:
+                    //case 0xA4:
+                    case '$':
+                        isBinary = true;
                         break;
-                    }
                 }
             }
             return isBinary;
