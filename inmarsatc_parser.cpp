@@ -150,7 +150,7 @@ namespace inmarsatc {
             std::string timestamp_str = std::to_string(timestamp_hours) + ":" + std::to_string(timestamp_min) + ":" + std::to_string(timestamp_sec) + "." + std::to_string(timestamp_msec);
             int signallingChannel = inputFrame.decodedFrame[*pos + 4] >> 2;
             int count = (inputFrame.decodedFrame[*pos + 5] >> 4 & 0x0F) * 0x02;
-            int channelType = inputFrame.decodedFrame[*pos + 6] >> 0x05;
+            uint8_t channelType = inputFrame.decodedFrame[*pos + 6] >> 0x05;
             std::string channelTypeName;
             switch (channelType) {
                 case 1:
