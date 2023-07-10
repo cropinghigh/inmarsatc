@@ -56,11 +56,11 @@ namespace inmarsatc {
                 symbolRegister[0] = bitsDemodulated[pos];
                 symbolCount++;
                 if (symbolCount >= UWFINDER_FRAME_LENGTH) {
-                    int nUW;
-                    int rUW;
-                    bool isReversedPolarity;
-                    bool isMidStreamReversePolarity;
-                    bool isReversedFirst_;
+                    int nUW = 0;
+                    int rUW = 0;
+                    bool isReversedPolarity = 0;
+                    bool isMidStreamReversePolarity = 0;
+                    bool isReversedFirst_ = 0;
                     if(IsFrameDetected(true, &nUW, &rUW, &isReversedPolarity, &isMidStreamReversePolarity, &isReversedFirst_)) {
                         // We check symbolRegister length
                         // If the length is larger than 1.6 the length of a frame, we can assume
@@ -71,19 +71,19 @@ namespace inmarsatc {
                         if (symbolCount > UWFINDER_FRAME_LENGTH * 1.6) {
                             // There is no point in checking if the frame has been detected, however we need the
                             // output values
-                            int nUW_;
-                            int rUW_;
-                            bool isReversedPolarity_;
-                            bool isMidStreamReversePolarity_;
+                            int nUW_ = 0;
+                            int rUW_ = 0;
+                            bool isReversedPolarity_ = false;
+                            bool isMidStreamReversePolarity_ = false;
                             IsFrameDetected(false, &nUW_, &rUW_, &isReversedPolarity_, &isMidStreamReversePolarity_, &isReversedFirst_);
                             // We reverse all symbols either for reverse polarity or for normal
                             // however we need to know which are which
                             int i_ = 0;
                             if (isReversedFirst_) {
                                 // The highest index in the uncertain frame contain reversed polarity symbols
-                                i_ = 2 * UWFINDER_FRAME_LENGTH - 81 * rUW_;
+                                i_ = (2 * UWFINDER_FRAME_LENGTH - 1) - (81 * rUW_);
                             } else {
-                                i_ = 2 * UWFINDER_FRAME_LENGTH - 81 * nUW_;
+                                i_ = (2 * UWFINDER_FRAME_LENGTH - 1) - (81 * nUW_);
                             }
                             for (; i_ > UWFINDER_FRAME_LENGTH; i_--) {
                                 symbolRegister[i_] = symbolRegister[i_] ^ 1;
